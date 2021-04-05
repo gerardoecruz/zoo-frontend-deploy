@@ -1,0 +1,29 @@
+{
+  "files": {
+    "main.css": "/static/css/main.0ee4ac7d.chunk.css",
+    "main.js": "/static/js/main.2ba1fb47.chunk.js",
+    "main.js.map": "/static/js/main.2ba1fb47.chunk.js.map",
+    "runtime-main.js": "/static/js/runtime-main.dec80816.js",
+    "runtime-main.js.map": "/static/js/runtime-main.dec80816.js.map",
+    "static/js/2.aeb34f95.chunk.js": "/static/js/2.aeb34f95.chunk.js",
+    "static/js/2.aeb34f95.chunk.js.map": "/static/js/2.aeb34f95.chunk.js.map",
+    "static/js/3.17465d4b.chunk.js": "/static/js/3.17465d4b.chunk.js",
+    "static/js/3.17465d4b.chunk.js.map": "/static/js/3.17465d4b.chunk.js.map",
+    "index.html": "/index.html",
+    "static/css/main.0ee4ac7d.chunk.css.map": "/static/css/main.0ee4ac7d.chunk.css.map",
+    "static/js/2.aeb34f95.chunk.js.LICENSE.txt": "/static/js/2.aeb34f95.chunk.js.LICENSE.txt",
+    "static/media/Elephant.658a10fe.jpg": "/static/media/Elephant.658a10fe.jpg",
+    "static/media/Giraffe.7902b660.jpg": "/static/media/Giraffe.7902b660.jpg",
+    "static/media/Lion.0e205570.jpg": "/static/media/Lion.0e205570.jpg",
+    "static/media/Rhinoceros.7dcca251.jpg": "/static/media/Rhinoceros.7dcca251.jpg",
+    "static/media/The_Safari.74f19edb.jpg": "/static/media/The_Safari.74f19edb.jpg",
+    "static/media/Tiger.3aeda941.jpg": "/static/media/Tiger.3aeda941.jpg",
+    "static/media/zoo.c40cb5df.jpg": "/static/media/zoo.c40cb5df.jpg"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.dec80816.js",
+    "static/js/2.aeb34f95.chunk.js",
+    "static/css/main.0ee4ac7d.chunk.css",
+    "static/js/main.2ba1fb47.chunk.js"
+  ]
+}
