@@ -130,7 +130,7 @@ const EmployeeDashboard = () => {
     <>
       <form className="form">
         <Typography>Add Animal to Zoo</Typography>
-        <Grid container spacing={2}>
+        <Grid container spacing={2} style={{ padding: "10px" }}>
           <Grid item>
             <FormControl>
               <InputLabel htmlFor="name">Name</InputLabel>

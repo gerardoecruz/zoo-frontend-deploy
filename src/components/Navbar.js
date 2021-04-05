@@ -8,10 +8,14 @@ import AccountCircleIcon from "@material-ui/icons/AccountCircle";
 import Button from "@material-ui/core/Button";
 import { useHistory } from "react-router-dom";
 import { UserContext } from "./UserContext";
+import { useRouteMatch } from "react-router-dom";
+import Link from "@material-ui/core/Link";
 
 // styling should change a little bit
 function Navbar() {
   const { user, login, logout } = useContext(UserContext);
+
+  let { url } = useRouteMatch();
 
   const history = useHistory();
 
@@ -38,9 +42,9 @@ function Navbar() {
 
   const goToDashboard = (role) => {
     if (role == "Admin") {
-      history.push("/employee_dashboard");
-    } else {
       history.push("/admin_dashboard");
+    } else {
+      history.push("/employee_dashboard");
     }
   };
 
@@ -81,8 +85,18 @@ function Navbar() {
                 }}>
                 Sign out
               </Button>
-              {user.role == "Admin" || user.role == "Employee" ? (
-                <Button onClick={goToDashboard}>Dash Board</Button>
+              {user.auth ? (
+                <>
+                  {user.role == "Admin" ? (
+                    <Link href={`/admin_dashboard`}>
+                      <Button>Dash Board</Button>
+                    </Link>
+                  ) : (
+                    <Link href={`/employee_dashboard`}>
+                      <Button>Dash Board</Button>
+                    </Link>
+                  )}
+                </>
               ) : null}
             </div>
           )}
