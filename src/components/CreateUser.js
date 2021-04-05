@@ -41,7 +41,7 @@ function CreateUser(props) {
         full_name: values.full_name,
         email: values.email,
         password: values.password,
-        role_id: "Admin",
+        role_id: "Customer",
       })
       .then((res) => {
         console.log(res);
