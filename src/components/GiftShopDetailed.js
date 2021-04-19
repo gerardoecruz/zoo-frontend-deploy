@@ -41,7 +41,6 @@ import { CloudQueueRounded, LensOutlined } from "@material-ui/icons";
 import Alert from "@material-ui/lab/Alert";
 import { useFormik } from "formik";
 
-
 const useStyles = makeStyles({
   select: {
     minWidth: 150,
@@ -73,7 +72,7 @@ const GiftShopDetailed = ({ match }) => {
 
   const [openDialogedit, setOpenDialogedit] = useState(false);
 
-  const [openDialogRemove, setOpenDialogRemove] = useState(false); 
+  const [openDialogRemove, setOpenDialogRemove] = useState(false);
 
   const [addDialog, setAddDialog] = useState(false);
 
@@ -98,11 +97,11 @@ const GiftShopDetailed = ({ match }) => {
   const handleModalRemove = (product) => {
     setCurrentProduct(product);
     setOpenDialogRemove(true);
-  }
+  };
 
   const handleModalCloseRemove = () => {
-    setOpenDialogRemove(false); 
-  }
+    setOpenDialogRemove(false);
+  };
 
   const handleModalCloseEdit = () => {
     setOpenDialogedit(false);
@@ -152,7 +151,7 @@ const GiftShopDetailed = ({ match }) => {
     if (values.product_name == "") {
       errors.product_name = "Required";
     }
-    
+
     // if (values.worK_location == "") {
     //   errors.work_location = "Required";
     // }
@@ -215,18 +214,17 @@ const GiftShopDetailed = ({ match }) => {
       .then((res) => {
         setOpenDialogRemove(false);
         console.log(res);
-        window.location.reload(false); 
+        window.location.reload(false);
       })
       .catch((err) => {
         setOpenDialogRemove(true);
         console.log(err);
       });
-  }
-
+  };
 
   const handleSave = () => {
     axios
-      .post("https://zoo-backend-test.herokuapp.com/merchandise/change_stock", currentProduct)
+      .put("https://zoo-backend-test.herokuapp.com/merchandise/change_stock", currentProduct)
       .then((res) => {
         setOpenDialogedit(false);
         console.log(res);
@@ -318,19 +316,16 @@ const GiftShopDetailed = ({ match }) => {
         <>
           {products.length > 0 ? (
             <>
-            
-                
               <Typography>{`Products in ${giftShop.location_name} Enclosure`}</Typography>
-              
+
               {user.role == "Admin" ? (
-                          <Grid item>
-                          <Button variant="contained" onClick={openAddDialog}>
-                            Add Item
-                          </Button>
-                        </Grid>
-                        ) : null}
-              
-              
+                <Grid item>
+                  <Button variant="contained" onClick={openAddDialog}>
+                    Add Item
+                  </Button>
+                </Grid>
+              ) : null}
+
               <TableContainer
                 component={Paper}
                 style={{ width: 800, paddingTop: "10px" }}>
@@ -342,9 +337,9 @@ const GiftShopDetailed = ({ match }) => {
                       <TableCell align="right">Product Price</TableCell>
 
                       {user.role == "Customer" ? (
-                          <TableCell align="right">Select Quantity</TableCell>
-                        ) : null}
-                      
+                        <TableCell align="right">Select Quantity</TableCell>
+                      ) : null}
+
                       {user.role == "Customer" ? (
                         <TableCell align="right">Actions</TableCell>
                       ) : null}
@@ -356,30 +351,33 @@ const GiftShopDetailed = ({ match }) => {
                         <TableCell component="th" scope="row">
                           {product.product_name}
                         </TableCell>
-                        <TableCell align="right">{product.stock_amount}</TableCell>
-                        <TableCell align="right">{"$" + product.price}</TableCell>
+                        <TableCell align="right">
+                          {product.stock_amount}
+                        </TableCell>
+                        <TableCell align="right">
+                          {"$" + product.price}
+                        </TableCell>
 
                         {user.role == "Customer" ? (
                           <TableCell align="right">
-                          <Select
-                            name="quantity_selected"
-                            style={{ width: "75px" }}
-                            value={product.quantity_selected}
-                            onChange={(e) => {
-                              handleSelectQuantity(e, product);
-                            }}>
-                            {quantities.map((q) => {
-                              return (
-                                <MenuItem key={q.value} value={q.value}>
-                                  {q.value}
-                                </MenuItem>
-                              );
-                            })}
-                          </Select>
-                        </TableCell>
+                            <Select
+                              name="quantity_selected"
+                              style={{ width: "75px" }}
+                              value={product.quantity_selected}
+                              onChange={(e) => {
+                                handleSelectQuantity(e, product);
+                              }}>
+                              {quantities.map((q) => {
+                                return (
+                                  <MenuItem key={q.value} value={q.value}>
+                                    {q.value}
+                                  </MenuItem>
+                                );
+                              })}
+                            </Select>
+                          </TableCell>
                         ) : null}
 
-                        
                         {user.role == "Customer" ? (
                           <TableCell align="right">
                             <Button
@@ -393,8 +391,8 @@ const GiftShopDetailed = ({ match }) => {
                           </TableCell>
                         ) : null}
                         {user.role == "Admin" ? (
-                        <TableCell align="right">
-                           <Button
+                          <TableCell align="right">
+                            <Button
                               variant="outlined"
                               onClick={() => {
                                 handleModalOpenEdit(product);
@@ -408,7 +406,8 @@ const GiftShopDetailed = ({ match }) => {
                               }}>
                               REMOVE
                             </Button>
-                        </TableCell>):null}
+                          </TableCell>
+                        ) : null}
                       </TableRow>
                     ))}
                   </TableBody>
@@ -508,7 +507,6 @@ const GiftShopDetailed = ({ match }) => {
                           // }
                         />
                       </Grid>
-                      
                     </Grid>
                   </DialogContent>
                   <DialogActions>
@@ -535,13 +533,15 @@ const GiftShopDetailed = ({ match }) => {
                     Remove {currentProduct.product_name}
                   </DialogTitle>
                   <DialogContent>
-                  <Typography className={classes.formTitle}>
-                    Are you sure?
-                  </Typography>
+                    <Typography className={classes.formTitle}>
+                      Are you sure?
+                    </Typography>
                   </DialogContent>
                   <DialogActions>
                     <Button
-                      onClick={() =>  {handleRemove(currentProduct.product_name);} }
+                      onClick={() => {
+                        handleRemove(currentProduct.product_name);
+                      }}
                       variant="contained"
                       color="secondary">
                       Yes
@@ -563,15 +563,13 @@ const GiftShopDetailed = ({ match }) => {
                     Change the Stock of {currentProduct.product_name}
                   </DialogTitle>
                   <DialogContent>
-                  <InputLabel htmlFor="amount_spent">
-                    Increase by how much
-                  </InputLabel>
+                    <InputLabel htmlFor="amount_spent">
+                      Increase by how much
+                    </InputLabel>
                     <Input
                       id="stock_amount"
                       value={currentProduct.stock_amount}
-                      onChange={handleHealthStatusChange}>
-                      
-                    </Input>
+                      onChange={handleHealthStatusChange}></Input>
                   </DialogContent>
                   <DialogActions>
                     <Button
