@@ -203,7 +203,7 @@ const EmployeeDashboard = () => {
     onSubmit: (values) => {
       // console.log(values);
       axios
-        .post("https://zoo-backend-test.herokuapp.com/reports/employee_report", values)
+        .post("https://zoo-backend-test.herokuapp.com/login/employee_report", values)
         .then((res) => {
           setAnimals(res.data);
         })

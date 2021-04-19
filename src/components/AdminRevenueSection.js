@@ -55,7 +55,7 @@ const AdminRevenueSection = () => {
     onSubmit: (values) => {
       console.log(values);
       axios
-        .post("https://zoo-backend-test.herokuapp.com/reports/admin_report", values)
+        .post("https://zoo-backend-test.herokuapp.com/login/admin_report", values)
         .then((res) => {
           console.log(res);
           setPurchaseHistory(res.data.purchase_history);
