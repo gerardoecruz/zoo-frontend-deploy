@@ -12,7 +12,7 @@ const Messages = () => {
   //   Get all messages for this user.
   useEffect(() => {
     axios
-      .post("https://zoo-backend-test.herokuapp.com/messages", {
+      .post("https://zoo-backend-test.herokuapp.com/messages/get_all_messages", {
         user_id: parseInt(user.userID),
       })
       .then((res) => {
