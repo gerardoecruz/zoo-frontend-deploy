@@ -13,7 +13,7 @@ import Link from "@material-ui/core/Link";
 
 // styling should change a little bit
 function Navbar() {
-  const { user, login, logout } = useContext(UserContext);
+  const { user, logout } = useContext(UserContext);
 
   let { url } = useRouteMatch();
 
@@ -36,15 +36,31 @@ function Navbar() {
 
   // needs to go to account page/purchase history when it's created.
   const goToAccountPage = () => {
-    let path = "/";
+    let path = "/history";
     history.push(path);
+  };
+
+  const goToTicketPage = (role) => {
+    if (role) {
+      let path = "/ticket";
+      history.push(path);
+    }
+  };
+
+  const goToGiftShop = (role) => {
+    if (role) {
+      let path = "/giftshops";
+      history.push(path);
+    }
   };
 
   const goToDashboard = (role) => {
     if (role == "Admin") {
       history.push("/admin_dashboard");
-    } else {
+    } else if (role == "Employee") {
       history.push("/employee_dashboard");
+    } else {
+      history.push("/user_dashboard");
     }
   };
 
@@ -87,15 +103,46 @@ function Navbar() {
               </Button>
               {user.auth ? (
                 <>
-                  {user.role == "Admin" ? (
+                  {user.role === "Admin" ? (
                     <Link href={`/admin_dashboard`}>
                       <Button>Dash Board</Button>
                     </Link>
-                  ) : (
-                    <Link href={`/employee_dashboard`}>
+                  ) : null}
+                  {user.role === "Employee" ? (
+                    <>
+                      <Link href={`/employee_dashboard`}>
+                        <Button>Dash Board</Button>
+                      </Link>
+                      <Link href={`/messages`}>
+                        <Button>Messages</Button>
+                      </Link>
+                    </>
+                  ) : null}
+                  {user.role === "Customer" ? (
+                    <Link href={`/user_dashboard`}>
                       <Button>Dash Board</Button>
                     </Link>
-                  )}
+                  ) : null}
+                </>
+              ) : null}
+
+              {user.auth ? (
+                <>
+                  {user.role === "Customer" ? (
+                    <Link href={`/history`}>
+                      <Button>Purchase History</Button>
+                    </Link>
+                  ) : null}
+                  
+                    <Link href={`/giftshops`}>
+                      <Button>Gift Shop</Button>
+                    </Link>
+                  
+                  {user.role === "Customer" ? (
+                    <Link href={`/ticket`}>
+                      <Button>Buy Tickets</Button>
+                    </Link>
+                  ) : null}
                 </>
               ) : null}
             </div>

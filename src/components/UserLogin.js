@@ -1,15 +1,13 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useContext } from "react";
 import TextField from "@material-ui/core/TextField";
 import { makeStyles } from "@material-ui/core/styles";
-import { Grid, Typography, Paper, Box, Button } from "@material-ui/core";
-import { Link } from "react-router-dom";
+import { Grid, Typography, Button } from "@material-ui/core";
 // import { AlternateEmail, DriveEtaTwoTone } from "@material-ui/icons";
 import axios from "axios";
 import { useFormik } from "formik";
 import { useHistory } from "react-router-dom";
 import Alert from "@material-ui/lab/Alert";
 import { UserContext } from "./UserContext";
-import { base_url } from "../config";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -34,11 +32,9 @@ const useStyles = makeStyles((theme) => ({
 const UserLogin = (props) => {
   const classes = useStyles();
 
-  const { login, logout } = useContext(UserContext);
+  const { login } = useContext(UserContext);
 
   let history = useHistory();
-
-  const [errors, setErrors] = useState();
 
   const [alertError, setAlertError] = useState(null);
 
@@ -74,17 +70,7 @@ const UserLogin = (props) => {
       .catch((err) => {
         //Log In failed.
         console.log(err.response);
-        console.log("Errors: ", err.response.data);
-        let errors_response = err.response.data.errors;
-        let new_errors = { email: "", password: "" };
-        if (Array.isArray(errors_response)) {
-          errors_response.forEach((error) => {
-            new_errors[error.param] = error.msg;
-          });
-          setErrors(new_errors);
-        } else {
-          setAlertError(err.response.data.error);
-        }
+        setAlertError(err.response.data.error);
       });
   };
 
@@ -134,9 +120,6 @@ const UserLogin = (props) => {
             }
           />
         </Grid>
-        <Link to="/create">
-          <Typography className={classes.signUp}>Sign Up</Typography>
-        </Link>
         <Button
           onClick={formik.handleSubmit}
           variant="contained"

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import Grid from "@material-ui/core/Grid";
 import Card from "@material-ui/core/Card";
 import { makeStyles } from "@material-ui/core/styles";
@@ -19,11 +19,35 @@ import Rhinoceros from "../images/Rhinoceros.jpg";
 import Tiger from "../images/Tiger.jpg";
 import The_Safari from "../images/The_Safari.jpg";
 
+import {
+  List,
+  ListItem,
+  ListItemIcon,
+  Chip,
+  ListItemText,
+  LinearProgress,
+  Paper,
+  Modal,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Select,
+  MenuItem,
+  InputLabel,
+  Input,
+  FormHelperText,
+} from "@material-ui/core";
+
 import axios from "axios";
 import { base_url } from "../config";
 import { TextField } from "@material-ui/core";
 import { images_path } from "../config";
 import { useRouteMatch } from "react-router-dom";
+
+import { UserContext } from "./UserContext";
+import { useFormik } from "formik";
+import Alert from "@material-ui/lab/Alert";
 
 const enclosure_data = [
   {
@@ -127,7 +151,7 @@ const EnclosureList = () => {
 
   const getAllEnclosures = () => {
     axios
-      .get(`https://zoo-backend-test.herokuapp.com/locations/all_enclsoures`)
+      .get(`https://zoo-backend-test.herokuapp.com/locations/all_enclosures`)
       .then((res) => {
         console.log(res);
 
@@ -146,6 +170,49 @@ const EnclosureList = () => {
       });
   };
 
+  const { user } = useContext(UserContext);
+  const [alertError, setAlertError] = useState(null);
+
+  const [addDialog, setAddDialog] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(false);
+  const openAddDialog = () => {
+    setAddDialog(true);
+  };
+
+  const closeAddDialog = () => {
+    setAddDialog(false);
+  };
+
+  const [location_name, setLocationName] = useState("");
+  const [location_type, setLocationType] = useState("Enclosure");
+
+  const handleCreateEnclosure = () => {
+    const data = new FormData();
+    data.append("location_name", location_name);
+    data.append("location_type", location_type);
+    data.append("location_image", selectedFile);
+    axios
+      .post("https://zoo-backend-test.herokuapp.com/locations", data)
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((err) => {
+        //Log In failed.
+        console.log(err.response);
+        console.log("Errors: ", err.response.data);
+        let errors_response = err.response.data.errors;
+        // let new_errors = { email: "", password: "" };
+        // if (Array.isArray(errors_response)) {
+        //   errors_response.forEach((error) => {
+        //     new_errors[error.param] = error.msg;
+        //   });
+        //   setErrors(new_errors);
+        // } else {
+        //   setAlertError(err.response.data.error);
+        // }
+      });
+  };
+
   useEffect(() => {
     getAllEnclosures();
     // console.log(enclosures);
@@ -154,7 +221,9 @@ const EnclosureList = () => {
   return (
     <div className={classes.categoryContainer}>
       {/* <Navbar></Navbar> */}
+
       <Typography className={classes.listCategory}>Enclosures</Typography>
+
       <Grid direction="row" container spacing={2} className={classes.grid}>
         {enclosures.map((enclosure, i) => {
           return (
@@ -168,6 +237,74 @@ const EnclosureList = () => {
           );
         })}
       </Grid>
+
+      {user.role == "Admin" ? (
+        <Grid item>
+          <Button variant="contained" onClick={openAddDialog}>
+            Add Enclosure
+          </Button>
+        </Grid>
+      ) : null}
+
+      {/* Modal for adding new item to gift shop */}
+      <div>
+        <Dialog open={addDialog} onClose={closeAddDialog}>
+          <DialogTitle>Add New Enclosure</DialogTitle>
+          <DialogContent>
+            <Grid
+              container
+              spacing={1}
+              direction="column"
+              className={classes.root}>
+              <Typography className={classes.formTitle}></Typography>
+              {alertError ? (
+                <Alert severity="error" style={{ paddingBottom: "10px" }}>
+                  {alertError}
+                </Alert>
+              ) : null}
+              <Grid item xs={12}>
+                <TextField
+                  label="Name"
+                  id="location_name"
+                  onChange={(e) => {
+                    setLocationName(e.target.value);
+                  }}
+                  name="location_name"
+                  variant="outlined"
+                  style={{ width: "100%" }}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <Button variant="contained" component="label">
+                  Upload File
+                  <input
+                    id="file"
+                    name="location_name"
+                    type="file"
+                    onChange={(event) => {
+                      setSelectedFile(event.target.files[0]);
+                    }}
+                  />
+                </Button>
+              </Grid>
+            </Grid>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={handleCreateEnclosure}
+              variant="contained"
+              color="secondary">
+              Save
+            </Button>
+            <Button
+              onClick={closeAddDialog}
+              variant="contained"
+              color="secondary">
+              CANCEL
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </div>
     </div>
   );
 };
