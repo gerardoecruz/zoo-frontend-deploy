@@ -115,10 +115,29 @@ const EnclosureDetailed = ({ match }) => {
                 console.log(err);
             });
     };
+
+    const getAnimals = () => {
+        axios
+            .get(`/animals/list_by_enclosure/`, {
+                params: { location: match.params.id },
+            })
+            .then((res) => {
+                console.log(res);
+                
+                setAnimals(res.data);
+                setLoading(false);
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
+    
     const handleDeleteAnimal = () => {
         axios
             .delete(`/animals/delete/${currentAnimal.animal_id}`)
             .then((res) => {
+                setDeleteDialog(false);
+                getAnimals();
                 console.log(res);
             })
             .catch((err) => {
@@ -134,20 +153,7 @@ const EnclosureDetailed = ({ match }) => {
     const closeDeleteDialog = () => {
         setDeleteDialog(false);
     };
-    const getAnimals = () => {
-        axios
-            .get(`/animals/list_by_enclosure/`, {
-                params: { location: match.params.id },
-            })
-            .then((res) => {
-                console.log(res);
-                setAnimals(res.data);
-                setLoading(false);
-            })
-            .catch((err) => {
-                console.log(err);
-            });
-    };
+    
 
     useEffect(() => {
         getEnclosure();
