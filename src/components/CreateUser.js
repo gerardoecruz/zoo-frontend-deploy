@@ -37,7 +37,7 @@ function CreateUser(props) {
 
   const handleSignup = (values) => {
     axios
-      .post("https://zoo-backend-test.herokuapp.com/signup", {
+      .post("/signup", {
         full_name: values.full_name,
         email: values.email,
         password: values.password,
@@ -170,6 +170,7 @@ function CreateUser(props) {
           label="Password"
           id="password"
           name="password"
+          type="password"
           onChange={formik.handleChange}
           variant="outlined"
           style={{ width: "100%" }}

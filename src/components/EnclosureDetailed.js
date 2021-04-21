@@ -81,7 +81,7 @@ const EnclosureDetailed = ({ match }) => {
 
     const handleSave = () => {
         axios
-            .put("https://zoo-backend-test.herokuapp.com/animals/change_health", currentAnimal)
+            .put("/animals/change_health", currentAnimal)
             .then((res) => {
                 setOpenDialog(false);
                 console.log(res);
@@ -104,7 +104,7 @@ const EnclosureDetailed = ({ match }) => {
 
     const getEnclosure = () => {
         axios
-            .get(`https://zoo-backend-test.herokuapp.com/locations/by_id`, {
+            .get(`/locations/by_id`, {
                 params: { location: match.params.id },
             })
             .then((res) => {
@@ -117,7 +117,7 @@ const EnclosureDetailed = ({ match }) => {
     };
     const handleDeleteAnimal = () => {
         axios
-            .delete(`https://zoo-backend-test.herokuapp.com/animals/delete/${currentAnimal.animal_id}`)
+            .delete(`/animals/delete/${currentAnimal.animal_id}`)
             .then((res) => {
                 console.log(res);
             })
@@ -136,7 +136,7 @@ const EnclosureDetailed = ({ match }) => {
     };
     const getAnimals = () => {
         axios
-            .get(`https://zoo-backend-test.herokuapp.com/animals/list_by_enclosure/`, {
+            .get(`/animals/list_by_enclosure/`, {
                 params: { location: match.params.id },
             })
             .then((res) => {

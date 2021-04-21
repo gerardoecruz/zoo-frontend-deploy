@@ -1,32 +1,32 @@
 {
   "files": {
     "main.css": "/static/css/main.b918f1c8.chunk.css",
-    "main.js": "/static/js/main.d1540d7b.chunk.js",
-    "main.js.map": "/static/js/main.d1540d7b.chunk.js.map",
+    "main.js": "/static/js/main.35d29918.chunk.js",
+    "main.js.map": "/static/js/main.35d29918.chunk.js.map",
     "runtime-main.js": "/static/js/runtime-main.cfe2b527.js",
     "runtime-main.js.map": "/static/js/runtime-main.cfe2b527.js.map",
-    "static/js/2.c84bc637.chunk.js": "/static/js/2.c84bc637.chunk.js",
-    "static/js/2.c84bc637.chunk.js.map": "/static/js/2.c84bc637.chunk.js.map",
+    "static/js/2.0e27c5aa.chunk.js": "/static/js/2.0e27c5aa.chunk.js",
+    "static/js/2.0e27c5aa.chunk.js.map": "/static/js/2.0e27c5aa.chunk.js.map",
     "index.html": "/index.html",
     "static/css/main.b918f1c8.chunk.css.map": "/static/css/main.b918f1c8.chunk.css.map",
-    "static/js/2.c84bc637.chunk.js.LICENSE.txt": "/static/js/2.c84bc637.chunk.js.LICENSE.txt",
+    "static/js/2.0e27c5aa.chunk.js.LICENSE.txt": "/static/js/2.0e27c5aa.chunk.js.LICENSE.txt",
     "static/media/Elephant.658a10fe.jpg": "/static/media/Elephant.658a10fe.jpg",
     "static/media/Giraffe.7902b660.jpg": "/static/media/Giraffe.7902b660.jpg",
     "static/media/Lion.0e205570.jpg": "/static/media/Lion.0e205570.jpg",
     "static/media/Rhinoceros.7dcca251.jpg": "/static/media/Rhinoceros.7dcca251.jpg",
-    "static/media/The_Safari.74f19edb.jpg": "/static/media/The_Safari.74f19edb.jpg",
+    "static/media/The_Safari.0b128bf7.jpg": "/static/media/The_Safari.0b128bf7.jpg",
     "static/media/Tiger.3aeda941.jpg": "/static/media/Tiger.3aeda941.jpg",
     "static/media/home_bird.679bf162.jpg": "/static/media/home_bird.679bf162.jpg",
     "static/media/home_elephant.5cbc5780.jpg": "/static/media/home_elephant.5cbc5780.jpg",
     "static/media/home_monkey.42150678.jpg": "/static/media/home_monkey.42150678.jpg",
-    "static/media/home_penguin.5f4b3f5a.jpg": "/static/media/home_penguin.5f4b3f5a.jpg",
+    "static/media/home_penguin.1bf0d67a.jpg": "/static/media/home_penguin.1bf0d67a.jpg",
     "static/media/home_tiger.3e7c7b0f.jpg": "/static/media/home_tiger.3e7c7b0f.jpg",
     "static/media/zoo.c40cb5df.jpg": "/static/media/zoo.c40cb5df.jpg"
   },
   "entrypoints": [
     "static/js/runtime-main.cfe2b527.js",
-    "static/js/2.c84bc637.chunk.js",
+    "static/js/2.0e27c5aa.chunk.js",
     "static/css/main.b918f1c8.chunk.css",
-    "static/js/main.d1540d7b.chunk.js"
+    "static/js/main.35d29918.chunk.js"
   ]
 }

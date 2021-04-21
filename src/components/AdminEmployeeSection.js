@@ -79,7 +79,7 @@ const AdminEmployeeSection = () => {
 
   const getAllEmployees = () => {
     axios
-      .get(`https://zoo-backend-test.herokuapp.com/employees/all`)
+      .get(`/employees/all`)
       .then((res) => {
         console.log(res.data);
         setEmployees(res.data);
@@ -91,7 +91,7 @@ const AdminEmployeeSection = () => {
 
   const getLocations = () => {
     axios
-      .get(`https://zoo-backend-test.herokuapp.com/locations`)
+      .get(`/locations`)
       .then((res) => {
         console.log(res.data);
         setLocations(res.data);
@@ -122,12 +122,13 @@ const AdminEmployeeSection = () => {
 
   const handleEditConfirm = () => {
     axios
-      .put("https://zoo-backend-test.herokuapp.com/employees/change_work_location", {
+      .put("/employees/change_work_location", {
         new_location: currentEmployee.work_location,
         employee_id: currentEmployee.employee_id,
       })
       .then((res) => {
         console.log(res);
+        getAllEmployees();
         setEditDialog(false);
       })
       .catch((err) => {
@@ -164,19 +165,25 @@ const AdminEmployeeSection = () => {
     if (values.worK_location == "") {
       errors.work_location = "Required";
     }
+    if (values.job_title == "") {
+      errors.job_title = "Required";
+    }
     return errors;
   };
 
   const handleCreateEmployee = (values) => {
     axios
-      .post("https://zoo-backend-test.herokuapp.com/signup", {
+      .post("/signup", {
         full_name: values.full_name,
         email: values.email,
         password: values.password,
         role_id: "Employee",
         work_location: values.work_location,
+        job_title: values.job_title,
       })
       .then((res) => {
+        setAddDialog(false);
+        getAllEmployees();
         console.log(res);
       })
       .catch((err) => {
@@ -201,6 +208,7 @@ const AdminEmployeeSection = () => {
       full_name: "",
       email: "",
       password: "",
+      job_title: "",
       work_location: 0,
     },
     validate,
@@ -214,6 +222,7 @@ const AdminEmployeeSection = () => {
   };
 
   const closeAddDialog = () => {
+    setAlertError("");
     setAddDialog(false);
   };
 
@@ -228,8 +237,10 @@ const AdminEmployeeSection = () => {
   };
   const handleDeleteEmployee = () => {
     axios
-      .delete(`https://zoo-backend-test.herokuapp.com/employees/delete/${currentEmployee.employee_id}`)
+      .delete(`/employees/delete/${currentEmployee.employee_id}`)
       .then((res) => {
+        getAllEmployees();
+        setDeleteDialog(false);
         console.log(res);
       })
       .catch((err) => {
@@ -245,7 +256,6 @@ const AdminEmployeeSection = () => {
         <LinearProgress color="primary" />
       ) : (
         <>
-          <Typography>{`All Employees`}</Typography>
           <Button variant="contained" onClick={openAddDialog}>
             Add Employee
           </Button>
@@ -321,6 +331,7 @@ const AdminEmployeeSection = () => {
                   </DialogTitle>
                   <DialogContent>
                     <Select
+                      style={{ width: "100%" }}
                       id="health_status"
                       value={currentEmployee.health_status}
                       onChange={handleWorkLocationChange}>
@@ -353,114 +364,6 @@ const AdminEmployeeSection = () => {
               </div>
 
               {/* Modal for adding new employee */}
-              <div>
-                <Dialog open={addDialog} onClose={closeAddDialog}>
-                  <DialogTitle>Add New Employee</DialogTitle>
-                  <DialogContent>
-                    <Grid
-                      container
-                      spacing={1}
-                      direction="column"
-                      className={classes.root}>
-                      <Typography className={classes.formTitle}>
-                        Add New Employee
-                      </Typography>
-                      {alertError ? (
-                        <Alert
-                          severity="error"
-                          style={{ paddingBottom: "10px" }}>
-                          {alertError}
-                        </Alert>
-                      ) : null}
-                      <Grid item xs={12}>
-                        <TextField
-                          label="Full Name"
-                          id="full_name"
-                          onChange={formik.handleChange}
-                          name="full_name"
-                          variant="outlined"
-                          style={{ width: "100%" }}
-                          error={formik.errors.full_name}
-                          helperText={
-                            formik.errors.full_name !== ""
-                              ? formik.errors.full_name
-                              : ""
-                          }
-                        />
-                      </Grid>
-                      <Grid item xs={12}>
-                        <TextField
-                          label="Email"
-                          id="email"
-                          onChange={formik.handleChange}
-                          name="email"
-                          variant="outlined"
-                          style={{ width: "100%" }}
-                          error={formik.errors.email}
-                          helperText={
-                            formik.errors.email !== ""
-                              ? formik.errors.email
-                              : ""
-                          }
-                        />
-                      </Grid>
-                      <Grid item xs={12}>
-                        <TextField
-                          label="Password"
-                          id="password"
-                          name="password"
-                          onChange={formik.handleChange}
-                          variant="outlined"
-                          style={{ width: "100%" }}
-                          error={formik.errors.password}
-                          helperText={
-                            formik.errors.password !== ""
-                              ? formik.errors.password
-                              : ""
-                          }
-                        />
-                      </Grid>
-                      <Grid item xs={12}>
-                        <InputLabel>Work Location</InputLabel>
-                        <Select
-                          id="work_location"
-                          style={{ width: "100%" }}
-                          name="work_location"
-                          onChange={formik.handleChange}>
-                          {locations.map((location) => {
-                            return (
-                              <MenuItem
-                                value={location.location_id}
-                                key={location.location_id}>
-                                {location.location_name}
-                              </MenuItem>
-                            );
-                          })}
-                        </Select>
-                        {formik.errors.work_location !== "" ? (
-                          <FormHelperText>
-                            {formik.errors.work_location}
-                          </FormHelperText>
-                        ) : null}
-                      </Grid>
-                    </Grid>
-                  </DialogContent>
-                  <DialogActions>
-                    <Button
-                      onClick={formik.handleSubmit}
-                      variant="contained"
-                      color="secondary">
-                      Save
-                    </Button>
-                    <Button
-                      onClick={closeAddDialog}
-                      variant="contained"
-                      color="secondary">
-                      CANCEL
-                    </Button>
-                  </DialogActions>
-                </Dialog>
-              </div>
 
               {/* Modal for deleting employee */}
               <div>
@@ -496,9 +399,127 @@ const AdminEmployeeSection = () => {
                 </Dialog>
               </div>
             </>
-          ) : (
-            <Typography style={{ padding: "10px" }}>No Animals</Typography>
-          )}
+          ) : null}
+
+          <div>
+            <Dialog open={addDialog} onClose={closeAddDialog}>
+              <DialogTitle>Add New Employee</DialogTitle>
+              <DialogContent>
+                <Grid
+                  container
+                  spacing={1}
+                  direction="column"
+                  className={classes.root}>
+                  <Typography className={classes.formTitle}>
+                    Add New Employee
+                  </Typography>
+                  {alertError ? (
+                    <Alert severity="error" style={{ paddingBottom: "10px" }}>
+                      {alertError}
+                    </Alert>
+                  ) : null}
+                  <Grid item xs={12}>
+                    <TextField
+                      label="Full Name"
+                      id="full_name"
+                      onChange={formik.handleChange}
+                      name="full_name"
+                      variant="outlined"
+                      style={{ width: "100%" }}
+                      error={formik.errors.full_name}
+                      helperText={
+                        formik.errors.full_name !== ""
+                          ? formik.errors.full_name
+                          : ""
+                      }
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      label="Email"
+                      id="email"
+                      onChange={formik.handleChange}
+                      name="email"
+                      variant="outlined"
+                      style={{ width: "100%" }}
+                      error={formik.errors.email}
+                      helperText={
+                        formik.errors.email !== "" ? formik.errors.email : ""
+                      }
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      label="Password"
+                      id="password"
+                      name="password"
+                      type="password"
+                      onChange={formik.handleChange}
+                      variant="outlined"
+                      style={{ width: "100%" }}
+                      error={formik.errors.password}
+                      helperText={
+                        formik.errors.password !== ""
+                          ? formik.errors.password
+                          : ""
+                      }
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      label="Job Title"
+                      id="job-title"
+                      name="job_title"
+                      onChange={formik.handleChange}
+                      variant="outlined"
+                      style={{ width: "100%" }}
+                      error={formik.errors.job_title}
+                      helperText={
+                        formik.errors.job_title !== ""
+                          ? formik.errors.job_title
+                          : ""
+                      }
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <InputLabel>Work Location</InputLabel>
+                    <Select
+                      id="work_location"
+                      style={{ width: "100%" }}
+                      name="work_location"
+                      onChange={formik.handleChange}>
+                      {locations.map((location) => (
+                        <MenuItem
+                          value={location.location_id}
+                          key={location.location_id}>
+                          {location.location_name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    {formik.errors.work_location !== "" ? (
+                      <FormHelperText>
+                        {formik.errors.work_location}
+                      </FormHelperText>
+                    ) : null}
+                  </Grid>
+                </Grid>
+              </DialogContent>
+              <DialogActions>
+                <Button
+                  onClick={formik.handleSubmit}
+                  variant="contained"
+                  color="secondary">
+                  Save
+                </Button>
+                <Button
+                  onClick={closeAddDialog}
+                  variant="contained"
+                  color="secondary">
+                  CANCEL
+                </Button>
+              </DialogActions>
+            </Dialog>
+          </div>
         </>
       )}
     </div>

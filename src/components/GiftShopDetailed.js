@@ -81,6 +81,8 @@ const GiftShopDetailed = ({ match }) => {
 
   const [open, setOpen] = useState(false);
 
+  const [newProductError, setNewProductError] = useState("");
+
   const [alertError, setAlertError] = useState(null);
 
   const handleModalOpen = (product) => {
@@ -100,6 +102,7 @@ const GiftShopDetailed = ({ match }) => {
   };
 
   const handleModalCloseRemove = () => {
+    setNewProductError("");
     setOpenDialogRemove(false);
   };
 
@@ -119,6 +122,11 @@ const GiftShopDetailed = ({ match }) => {
     setOpenDialog(false);
   };
 
+  const closeAddDialog = () => {
+    setNewProductError("");
+    setAddDialog(false);
+  };
+
   const handleHealthStatusChange = (e) => {
     setCurrentProduct({
       ...currentProduct,
@@ -126,68 +134,38 @@ const GiftShopDetailed = ({ match }) => {
     });
   };
 
-  // const [errors, setErrors] = useState({
-  //   email: "",
-  //   password: "",
-  // });
-
   const validate = (values) => {
     let errors = {};
     if (!values.stock_amount) {
       errors.stock_amount = "Required";
-    } //else if (
-    //   !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)
-    // ) {
-    //   errors.email = "Invalid email address";
-    // } else if (values.email.length > 25) {
-    //   errors.email = "Max 25 characters";
-    // }
-    // if (values.password.length < 4) {
-    //   errors.password = "Minimum 4 characters";
-    // }
-    if (values.price == "") {
+    }
+    if (!values.price) {
       errors.price = "Required";
     }
-    if (values.product_name == "") {
+    if (!values.product_name) {
       errors.product_name = "Required";
     }
-
-    // if (values.worK_location == "") {
-    //   errors.work_location = "Required";
-    // }
     return errors;
   };
 
-  const handleCreateEmployee = (values) => {
+  const CreateNewProduct = (values) => {
     axios
-      .post("https://zoo-backend-test.herokuapp.com/merchandise/additem", {
+      .post("/merchandise/additem", {
         stock_amount: values.stock_amount,
         price: values.price,
         product_name: values.product_name,
-        location_sold: 24,
+        location_sold: giftShop.location_id,
       })
       .then((res) => {
         console.log(res);
+        getProducts();
+        setAddDialog(false);
       })
       .catch((err) => {
-        //Log In failed.
+        //Creating new product failed
         console.log(err.response);
-        console.log("Errors: ", err.response.data);
-        let errors_response = err.response.data.errors;
-        // let new_errors = { email: "", password: "" };
-        // if (Array.isArray(errors_response)) {
-        //   errors_response.forEach((error) => {
-        //     new_errors[error.param] = error.msg;
-        //   });
-        //   setErrors(new_errors);
-        // } else {
-        //   setAlertError(err.response.data.error);
-        // }
+        setNewProductError(err.response.data.error);
       });
-  };
-
-  const closeAddDialog = () => {
-    setAddDialog(false);
   };
 
   const formik = useFormik({
@@ -195,12 +173,11 @@ const GiftShopDetailed = ({ match }) => {
       stock_amount: "",
       price: "",
       product_name: "",
-      location_sold: 24,
+      location_sold: "",
     },
     validate,
     onSubmit: (values) => {
-      handleCreateEmployee(values);
-      setAddDialog(false);
+      CreateNewProduct(values);
     },
   });
 
@@ -208,13 +185,42 @@ const GiftShopDetailed = ({ match }) => {
     setAddDialog(true);
   };
 
+  const getProducts = () => {
+    axios
+      .get(`/merchandise/all_products/`, {
+        params: { location: match.params.id },
+      })
+      .then((res) => {
+        console.log(res);
+        let products = res.data.map((each) => {
+          return {
+            ...each,
+            quantity_selected: 0,
+            amount_due: 0,
+          };
+        });
+        if (user.role == "Customer") {
+          let products2 = products.filter(
+            (product) => product.stock_amount > 10
+          );
+          setProducts(products2);
+        } else {
+          setProducts(products);
+        }
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
   const handleRemove = (product_name) => {
     axios
-      .post("https://zoo-backend-test.herokuapp.com/merchandise/removeItem", { product: product_name })
+      .post("/merchandise/removeItem", { product: product_name })
       .then((res) => {
+        getProducts();
         setOpenDialogRemove(false);
         console.log(res);
-        window.location.reload(false);
       })
       .catch((err) => {
         setOpenDialogRemove(true);
@@ -224,8 +230,9 @@ const GiftShopDetailed = ({ match }) => {
 
   const handleSave = () => {
     axios
-      .put("https://zoo-backend-test.herokuapp.com/merchandise/change_stock", currentProduct)
+      .put("/merchandise/change_stock", currentProduct)
       .then((res) => {
+        getProducts();
         setOpenDialogedit(false);
         console.log(res);
       })
@@ -243,33 +250,11 @@ const GiftShopDetailed = ({ match }) => {
 
   const getGiftShop = () => {
     axios
-      .get(`https://zoo-backend-test.herokuapp.com/locations/by_id`, {
+      .get(`/locations/by_id`, {
         params: { location: match.params.id },
       })
       .then((res) => {
         setGiftShop(res.data[0]);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
-
-  const getProducts = () => {
-    axios
-      .get(`https://zoo-backend-test.herokuapp.com/merchandise/all_products/`, {
-        params: { location: match.params.id },
-      })
-      .then((res) => {
-        console.log(res);
-        let products = res.data.map((each) => {
-          return {
-            ...each,
-            quantity_selected: 0,
-            amount_due: 0,
-          };
-        });
-        setProducts(products);
-        setLoading(false);
       })
       .catch((err) => {
         console.log(err);
@@ -289,11 +274,12 @@ const GiftShopDetailed = ({ match }) => {
 
   const handleConfirm = () => {
     axios
-      .post("https://zoo-backend-test.herokuapp.com/merchandise/buy", {
+      .post("/merchandise/buy", {
         user_id: user.userID,
         ...currentProduct,
       })
       .then((res) => {
+        getProducts();
         setOpenDialog(false);
         console.log(res);
       })
@@ -318,7 +304,7 @@ const GiftShopDetailed = ({ match }) => {
             <>
               <Typography>{`Products in ${giftShop.location_name} Enclosure`}</Typography>
 
-              {user.role == "Admin" ? (
+              {user.role == "Admin" || user.role == "Employee" ? (
                 <Grid item>
                   <Button variant="contained" onClick={openAddDialog}>
                     Add Item
@@ -333,15 +319,16 @@ const GiftShopDetailed = ({ match }) => {
                   <TableHead>
                     <TableRow>
                       <TableCell>Product Name </TableCell>
-                      <TableCell align="right">Product Stock</TableCell>
-                      <TableCell align="right">Product Price</TableCell>
-
+                      <TableCell align="center">Product Stock</TableCell>
+                      <TableCell align="center">Product Price</TableCell>
                       {user.role == "Customer" ? (
-                        <TableCell align="right">Select Quantity</TableCell>
+                        <TableCell align="center">Select Quantity</TableCell>
                       ) : null}
 
-                      {user.role == "Customer" ? (
-                        <TableCell align="right">Actions</TableCell>
+                      {user.role == "Customer" ||
+                      user.role == "Admin" ||
+                      user.role == "Employee" ? (
+                        <TableCell align="center">Actions</TableCell>
                       ) : null}
                     </TableRow>
                   </TableHead>
@@ -390,7 +377,7 @@ const GiftShopDetailed = ({ match }) => {
                             </Button>
                           </TableCell>
                         ) : null}
-                        {user.role == "Admin" ? (
+                        {user.role == "Admin" || user.role == "Employee" ? (
                           <TableCell align="right">
                             <Button
                               variant="outlined"
@@ -414,7 +401,7 @@ const GiftShopDetailed = ({ match }) => {
                 </Table>
               </TableContainer>
 
-              {/* Modal for changing health status */}
+              {/* Modal for buying merchandise */}
               <div>
                 <Dialog open={openDialog}>
                   <DialogTitle>Transaction Details</DialogTitle>
@@ -443,6 +430,9 @@ const GiftShopDetailed = ({ match }) => {
               <div>
                 <Dialog open={addDialog} onClose={closeAddDialog}>
                   <DialogTitle>Add New Item</DialogTitle>
+                  {newProductError != "" ? (
+                    <Alert severity="error">{newProductError}</Alert>
+                  ) : null}
                   <DialogContent>
                     <Grid
                       container
@@ -467,28 +457,28 @@ const GiftShopDetailed = ({ match }) => {
                           name="stock_amount"
                           variant="outlined"
                           style={{ width: "100%" }}
-                          // error={formik.errors.full_name}
-                          // helperText={
-                          //   formik.errors.full_name !== ""
-                          //     ? formik.errors.full_name
-                          //     : ""
-                          // }
+                          error={formik.errors.stock_amount}
+                          helperText={
+                            formik.errors.stock_amount !== ""
+                              ? formik.errors.stock_amount
+                              : ""
+                          }
                         />
                       </Grid>
                       <Grid item xs={12}>
                         <TextField
                           label="Price"
-                          id="email"
+                          id="price"
                           onChange={formik.handleChange}
                           name="price"
                           variant="outlined"
                           style={{ width: "100%" }}
-                          // error={formik.errors.email}
-                          // helperText={
-                          //   formik.errors.email !== ""
-                          //     ? formik.errors.email
-                          //     : ""
-                          // }
+                          error={formik.errors.price}
+                          helperText={
+                            formik.errors.price !== ""
+                              ? formik.errors.price
+                              : ""
+                          }
                         />
                       </Grid>
                       <Grid item xs={12}>
@@ -499,12 +489,12 @@ const GiftShopDetailed = ({ match }) => {
                           onChange={formik.handleChange}
                           variant="outlined"
                           style={{ width: "100%" }}
-                          // error={formik.errors.password}
-                          // helperText={
-                          //   formik.errors.password !== ""
-                          //     ? formik.errors.password
-                          //     : ""
-                          // }
+                          error={formik.errors.product_name}
+                          helperText={
+                            formik.errors.product_name !== ""
+                              ? formik.errors.product_name
+                              : ""
+                          }
                         />
                       </Grid>
                     </Grid>

@@ -57,7 +57,7 @@ const UserLogin = (props) => {
 
   const handleLogin = (values) => {
     axios
-      .post("https://zoo-backend-test.herokuapp.com/login", {
+      .post("/login", {
         email: values.email,
         password: values.password,
       })
@@ -110,8 +110,8 @@ const UserLogin = (props) => {
           <TextField
             label="Password"
             id="password"
+            type="password"
             name="password"
-            type= "password"
             onChange={formik.handleChange}
             variant="outlined"
             style={{ width: "100%" }}

@@ -12,7 +12,7 @@ const Messages = () => {
   //   Get all messages for this user.
   useEffect(() => {
     axios
-      .post("https://zoo-backend-test.herokuapp.com/messages/get_all_messages", {
+      .post("/messages", {
         user_id: parseInt(user.userID),
       })
       .then((res) => {
@@ -27,7 +27,7 @@ const Messages = () => {
   const deleteMessage = (message) => {
     console.log(message);
     axios
-      .delete(`https://zoo-backend-test.herokuapp.com/messages/delete/${message.message_id}`, message)
+      .delete(`/messages/delete/${message.message_id}`, message)
       .then((res) => {
         let new_messages = messages.filter(
           (mes) => mes.message_id != message.message_id

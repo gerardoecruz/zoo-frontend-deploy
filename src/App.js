@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter, Route, Switch } from "react-router-dom";
+import { BrowserRouter, Route, Switch, HashRouter } from "react-router-dom";
 import Home from "./Home";
 import Ticket from "./components/Ticket";
 import EnclosureList from "./components/EnclosureList";

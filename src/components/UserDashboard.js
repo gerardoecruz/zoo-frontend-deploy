@@ -16,6 +16,8 @@ import {
   Table,
   TableContainer,
   Paper,
+  Card,
+  CardContent,
   // Modal,
 } from "@material-ui/core";
 import Button from "@material-ui/core/Button";
@@ -64,9 +66,9 @@ const UserDashboard = () => {
   const { user } = useContext(UserContext);
 
   //Get all the enclosure names:
-  const [enclosureNames, setEnclosureNames] = useState([]);
-  const [species, setSpecies] = useState([]);
-  const [animals, setAnimals] = useState([]);
+  const [shops, setShops] = useState([]);
+
+  const [purchaseItems, setPurchaseItems] = useState([]);
 
   const [animal, setAnimal] = useState({
     date_arrived: null,
@@ -76,13 +78,13 @@ const UserDashboard = () => {
     animal_name: "",
   });
 
-  const getEnclosureNames = () => {
+  const getAllShops = () => {
     axios
-      .get(`https://zoo-backend-test.herokuapp.com/locations/all_shops`)
+      .get(`/locations/all_shops`)
       .then((res) => {
         console.log(res.data);
 
-        setEnclosureNames(res.data);
+        setShops(res.data);
       })
       .catch((err) => {
         console.log(err);
@@ -90,26 +92,8 @@ const UserDashboard = () => {
   };
 
   useEffect(() => {
-    getEnclosureNames();
+    getAllShops();
   }, []);
-
-  const [values, setValues] = useState({
-    investigator: "",
-    checked: true,
-    purchase: "",
-    enclosure: "",
-    animal: "",
-    customer: "",
-    dateFrom: "",
-    dateTo: "",
-  });
-
-  const handleChange = (prop) => (event) => {
-    setValues({ ...values, [prop]: event.target.value });
-  };
-  const handlecheck = (event) => {
-    setValues({ ...values, [event.target.name]: event.target.checked });
-  };
 
   const validate = (values) => {
     console.log("testing...");
@@ -119,6 +103,13 @@ const UserDashboard = () => {
       !Number.isInteger(Number(values.amount_spent))
     ) {
       errors.amount_spent = "Must be a valid number";
+    }
+    if (
+      values.date_from &&
+      values.date_to &&
+      values.date_from > values.date_to
+    ) {
+      errors.date_from = "Date From Cannot be after Date to";
     }
     return errors;
   };
@@ -134,21 +125,36 @@ const UserDashboard = () => {
     validate,
     onSubmit: (values) => {
       console.log(values);
-        axios
-          .post('https://zoo-backend-test.herokuapp.com/login/customer_report', values)
-          .then((res) => {
-            console.log(res.data);
-            setAnimals(res.data);
-          })
-          .catch((err) => {
-            console.log(err);
-          });
+      axios
+        .post("/reports/customer_report", values)
+        .then((res) => {
+          console.log(res.data);
+          setPurchaseItems(res.data);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     },
   });
+
+  const [totalSales, setTotalSales] = useState();
+
+  const computeTotalSales = () => {
+    let total = 0;
+    purchaseItems.forEach((product) => {
+      total = total + product.total_purchase_cost;
+    });
+    setTotalSales(total);
+  };
+
+  useEffect(() => {
+    computeTotalSales();
+  }, [purchaseItems]);
+
   const classy = theStyles();
 
   return (
-    <>
+    <div style={{ margin: "10px" }}>
       <div className={classy.root} noValidate autoComplete="off">
         <div>
           <Typography
@@ -163,40 +169,29 @@ const UserDashboard = () => {
             style={{
               fontSize: "22px",
               fontWeight: "bold",
-            }}>
-            
-          </Typography>
+            }}></Typography>
         </div>
         <div>
           <FormControl
             spacing={2}
             style={{ marginBottom: "20px", width: "40%" }}
             className={clsx(classy.margin, classy.textField)}
-            variant="outlined">
-            
-            
-          </FormControl>
+            variant="outlined"></FormControl>
         </div>
-
-        <Typography
-          align="left"
-          style={{
-            fontSize: "18px",
-          }}>
-          Select atleast one item:{" "}
-        </Typography>
         <div>
-          <FormControl>
+          <FormControl style={{ paddingRight: "10px" }}>
             <InputLabel id="shop_name">Shop Name</InputLabel>
             <Select
               labelId="shop_name"
               onChange={reportForm.handleChange}
               name="shop_name"
               error={reportForm.errors.shop_name}
+              value={reportForm.values.shop_name}
+              displayEmpty
               className={classes.select}>
-              {enclosureNames.map((e, index) => (
-                <MenuItem key={index} value={e.location_id}>
-                  {e.location_name}
+              {shops.map((s, index) => (
+                <MenuItem key={index} value={s.location_id}>
+                  {s.location_name}
                 </MenuItem>
               ))}
             </Select>
@@ -215,6 +210,7 @@ const UserDashboard = () => {
               id="amount_spent"
               onChange={reportForm.handleChange}
               name="amount_spent"
+              value={reportForm.values.amount_spent}
               error={reportForm.errors.amount_spent}
             />
             <FormHelperText style={{ color: "red" }}>
@@ -224,84 +220,94 @@ const UserDashboard = () => {
         </div>
         <div></div>
         <FormControl style={{ marginBottom: "20px", marginRight: "40px" }}>
-            <InputLabel id="date_from" shrink>
-              Date From:
-            </InputLabel>
-            <Input
-              labelId="activity-from"
-              name="date_from"
-              type="date"
-              onChange={reportForm.handleChange}
-            />
-          </FormControl>
-          <FormControl>
-            <InputLabel id="date_to" shrink>
-              Date To:
-            </InputLabel>
-            <Input
-              labelId="activity-to"
-              name="date_to"
-              type="date"
-              onChange={reportForm.handleChange}
-            />
-          </FormControl>
-          <Button variant="contained" onClick={reportForm.handleSubmit}>
-            Get Report
-          </Button>
-
+          <InputLabel id="date_from" shrink>
+            Date From:
+          </InputLabel>
+          <Input
+            labelId="activity-from"
+            name="date_from"
+            type="date"
+            value={reportForm.values.date_from}
+            onChange={reportForm.handleChange}
+          />
+          <FormHelperText style={{ color: "red" }}>
+            {reportForm.errors.date_from}
+          </FormHelperText>
+        </FormControl>
+        <FormControl>
+          <InputLabel id="date_to" shrink>
+            Date To:
+          </InputLabel>
+          <Input
+            labelId="activity-to"
+            name="date_to"
+            type="date"
+            value={reportForm.values.date_to}
+            onChange={reportForm.handleChange}
+          />
+        </FormControl>
+        <Button
+          variant="contained"
+          onClick={reportForm.handleSubmit}
+          style={{ marginRight: "10px" }}>
+          Get Report
+        </Button>
+        <Button onClick={reportForm.handleReset} variant="outlined">
+          Clear
+        </Button>
       </div>
-      
 
       {/* Table to display the animals */}
-      <>
-        {
-          animals.length > 0 ? (
-            <>
-              <Typography>{`Report Result`}</Typography>
-              <TableContainer
-                component={Paper}
-                style={{ width: 800, paddingTop: "10px" }}>
-                <Table aria-label="simple table">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Location Bought </TableCell>
-                      <TableCell align="right">Item(s) Purchased</TableCell>
-                      <TableCell align="right">Amount Spent</TableCell>
-                      <TableCell align="right">Date Purchased</TableCell>
+      {purchaseItems.length > 0 ? (
+        <Grid container id="master" alignItems="flex-start" spacing={2}>
+          <Grid item id="left" xs={6}>
+            <TableContainer component={Paper} style={{ paddingTop: "10px" }}>
+              <Table aria-label="simple table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Location Bought </TableCell>
+                    <TableCell align="right">Item(s) Purchased</TableCell>
+                    <TableCell align="right">Amount Spent</TableCell>
+                    <TableCell align="right">Date Purchased</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {purchaseItems.map((item) => (
+                    <TableRow key={item.customer_id}>
+                      <TableCell component="th" scope="row">
+                        {item.location_name}
+                      </TableCell>
+                      <TableCell align="right">
+                        {item.quantity_purchased + " " + item.product_name}
+                      </TableCell>
+                      <TableCell align="right">
+                        {"$" + item.total_purchase_cost}
+                      </TableCell>
+                      <TableCell align="right">
+                        {item.purchase_time.toString().split("T")[0]}
+                      </TableCell>
                     </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {animals.map((animal) => (
-                      <TableRow key={animal.customer_id}>
-                        
-                        <TableCell component="th" scope="row">
-                          {animal.location_name}
-                        </TableCell>
-                        <TableCell align="right">
-                          {animal.quantity_purchased + " " + animal.product_name}
-                        </TableCell>
-                        <TableCell align="right">
-                          {"$" + animal.total_purchase_cost}
-                        </TableCell>
-                        <TableCell align="right">
-                          {animal.purchase_time.toString().split("T")[0]}
-                        </TableCell>
-                    
-                        {/* <TableCell align="right">
-                          {animal.health_status}
-                        </TableCell> */}
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </>
-          ) : null
-          //   <Typography style={{ padding: "10px" }}>No Animals</Typography>
-        }
-      </>
-
-    </>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Grid>
+          <Grid id="right" item>
+            <Grid item>
+              <Card>
+                <CardContent>
+                  <Typography variant="h5" component="h2">
+                    Sales Summary
+                  </Typography>
+                  <Typography color="textSecondary">{`Total Sales $${totalSales}.00`}</Typography>
+                  <Typography variant="body2" component="p"></Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
+        </Grid>
+      ) : null}
+    </div>
   );
 };
 

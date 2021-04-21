@@ -106,7 +106,7 @@ const cardStyles = makeStyles({
   },
 });
 
-const EnclosureCard = ({ name, description, image, id }) => {
+const EnclosureCard = ({ name, description, source, id }) => {
   let { url } = useRouteMatch();
   const classes = cardStyles();
 
@@ -115,11 +115,7 @@ const EnclosureCard = ({ name, description, image, id }) => {
       <Card className={classes.root}>
         <div>
           <CardActionArea>
-            <CardMedia
-              className={classes.media}
-              image={image}
-              title="Contemplative Reptile"
-            />
+            <CardMedia className={classes.media} component="img" src={source} />
             <CardContent>
               <Typography gutterBottom variant="h5" component="h2">
                 {name}
@@ -149,9 +145,23 @@ const EnclosureList = () => {
 
   const [enclosures, setEnclosures] = useState([]);
 
+  const convert_base_64 = () => {
+    return new Promise((res, rej) => {
+      const fileReader = new FileReader();
+      fileReader.readAsDataURL(selectedFile);
+      fileReader.onload = () => {
+        res(fileReader.result);
+      };
+
+      fileReader.onerror = (err) => {
+        rej(err);
+      };
+    });
+  };
+
   const getAllEnclosures = () => {
     axios
-      .get(`https://zoo-backend-test.herokuapp.com/locations/all_enclosures`)
+      .get(`/locations/all_enclosures`)
       .then((res) => {
         console.log(res);
 
@@ -162,7 +172,7 @@ const EnclosureList = () => {
         //     location_img: URL.createObjectURL(new Blob(e.image.data, {type: "application/zip"}),
         //   };
         // });
-        console.log(res.data);
+        // console.log(res.data);
         setEnclosures(res.data);
       })
       .catch((err) => {
@@ -180,36 +190,33 @@ const EnclosureList = () => {
   };
 
   const closeAddDialog = () => {
+    setLocationName("");
+    setSelectedFile(null);
+    setAlertError("");
     setAddDialog(false);
   };
 
   const [location_name, setLocationName] = useState("");
   const [location_type, setLocationType] = useState("Enclosure");
 
-  const handleCreateEnclosure = () => {
+  const handleCreateEnclosure = async () => {
+    const base64 = await convert_base_64();
+    console.log(base64);
     const data = new FormData();
     data.append("location_name", location_name);
     data.append("location_type", location_type);
     data.append("location_image", selectedFile);
+    data.append("img_64", base64);
     axios
-      .post("https://zoo-backend-test.herokuapp.com/locations", data)
+      .post("/locations", data)
       .then((res) => {
-        console.log(res);
+        // console.log(res);
+        getAllEnclosures();
+        setAddDialog(false);
       })
       .catch((err) => {
-        //Log In failed.
-        console.log(err.response);
-        console.log("Errors: ", err.response.data);
-        let errors_response = err.response.data.errors;
-        // let new_errors = { email: "", password: "" };
-        // if (Array.isArray(errors_response)) {
-        //   errors_response.forEach((error) => {
-        //     new_errors[error.param] = error.msg;
-        //   });
-        //   setErrors(new_errors);
-        // } else {
-        //   setAlertError(err.response.data.error);
-        // }
+        //Creating new location failed.
+        setAlertError(err.response.data.error);
       });
   };
 
@@ -230,7 +237,7 @@ const EnclosureList = () => {
             <Grid item key={i}>
               <EnclosureCard
                 name={enclosure.location_name}
-                image={`/uploads/${enclosure.location_image}`}
+                source={enclosure.img_64}
                 id={enclosure.location_id}
               />
             </Grid>
@@ -246,7 +253,7 @@ const EnclosureList = () => {
         </Grid>
       ) : null}
 
-      {/* Modal for adding new item to gift shop */}
+      {/* Modal for adding new Enclosure */}
       <div>
         <Dialog open={addDialog} onClose={closeAddDialog}>
           <DialogTitle>Add New Enclosure</DialogTitle>
@@ -279,8 +286,9 @@ const EnclosureList = () => {
                   Upload File
                   <input
                     id="file"
-                    name="location_name"
+                    name="location_image"
                     type="file"
+                    hidden
                     onChange={(event) => {
                       setSelectedFile(event.target.files[0]);
                     }}
@@ -292,6 +300,7 @@ const EnclosureList = () => {
           <DialogActions>
             <Button
               onClick={handleCreateEnclosure}
+              disabled={location_name == "" || selectedFile == ""}
               variant="contained"
               color="secondary">
               Save

@@ -45,7 +45,7 @@ const EnclosureDetailed = ({ match }) => {
 
     const getPurchases = () => {
         axios
-            .get(`https://zoo-backend-test.herokuapp.com/purchaseHistory/history`, {
+            .get(`/purchaseHistory/history`, {
                 params: { userID: id },
             })
             .then((res) => {

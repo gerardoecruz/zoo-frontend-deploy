@@ -16,10 +16,13 @@ import {
   TableContainer,
   TableHead,
   TableBody,
+  CardContent,
+  Card,
+  Snackbar,
   // Modal,
 } from "@material-ui/core";
+import Alert from "@material-ui/lab/Alert";
 import Button from "@material-ui/core/Button";
-import TextField from "@material-ui/core/TextField";
 import axios from "axios";
 // import { base_url } from "../config";
 import { useFormik } from "formik";
@@ -31,6 +34,8 @@ import CheckBoxOutlineBlankIcon from "@material-ui/icons/CheckBoxOutlineBlank";
 import CheckBoxIcon from "@material-ui/icons/CheckBox";
 import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
+
+import CreateSpecies from "./CreateSpecies";
 const theStyles = makeStyles((theme) => ({
   root: {
     width: "900px",
@@ -65,6 +70,18 @@ const EmployeeDashboard = () => {
   const [species, setSpecies] = useState([]);
   const [animals, setAnimals] = useState([]);
 
+  const [animalsCount, setAnimalsCount] = useState(0);
+  const [healthyCount, setHealthyCount] = useState(0);
+  const [sickCount, setSickCount] = useState(0);
+  const [deceasedCount, setDeceasedCount] = useState(0);
+
+  const [successMsg, setSuccessMsg] = useState("");
+  const [failMsg, setFailMsg] = useState("");
+  const [snackOpen, setSnackOpen] = useState(false);
+
+  //Create new species
+  let species_error = "";
+
   const [animal, setAnimal] = useState({
     date_arrived: null,
     deceased_date: null,
@@ -75,10 +92,9 @@ const EmployeeDashboard = () => {
 
   const getEnclosureNames = () => {
     axios
-      .get(`https://zoo-backend-test.herokuapp.com/locations/all_enclosures`)
+      .get(`/locations/all_enclosures`)
       .then((res) => {
         console.log(res.data);
-
         setEnclosureNames(res.data);
       })
       .catch((err) => {
@@ -88,7 +104,7 @@ const EmployeeDashboard = () => {
 
   const getAllSpecies = () => {
     axios
-      .get(`https://zoo-backend-test.herokuapp.com/species`)
+      .get(`/species`)
       .then((res) => {
         console.log(res.data);
         setSpecies(res.data);
@@ -120,49 +136,19 @@ const EmployeeDashboard = () => {
     if (!values.species) {
       errors.species = "Required";
     }
+    if (
+      values.birth_date &&
+      values.date_arrived &&
+      values.birth_date > values.date_arrived
+    ) {
+      errors.date_arrived = "Date Arrived Cannot be before Date of Birth";
+    }
     return errors;
-  };
-  const [values, setValues] = useState({
-    investigator: "",
-    checked: true,
-    purchase: "",
-    enclosure: "",
-    animal: "",
-    customer: "",
-    dateFrom: "",
-    dateTo: "",
-  });
-  const handleReport = (values) => {
-    console.log("handleReport called");
-    axios
-      .post("https://zoo-backend-test.herokuapp.com/values", {
-        investigator: values.investigator,
-        checked: true,
-        purchase: values.purchase,
-        enclosure: values.ensloure,
-        animal: values.animal,
-        customer: values.customer,
-        dateFrom: values.dateFrom,
-        dateTo: values.dateTo,
-      })
-      .then((res) => {
-        console.log(res);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
-  const handleChange = (prop) => (event) => {
-    setValues({ ...values, [prop]: event.target.value });
-  };
-  const handlecheck = (event) => {
-    setValues({ ...values, [event.target.name]: event.target.checked });
   };
 
   const handleSubmit = (values) => {
-    console.log("handleSubmit called");
     axios
-      .post(`https://zoo-backend-test.herokuapp.com/animals`, {
+      .post(`/animals`, {
         date_arrived: values.date_arrived,
         deceased_date: values.deceased_date,
         birth_date: values.birth_date,
@@ -172,6 +158,8 @@ const EmployeeDashboard = () => {
       })
       .then((res) => {
         console.log(res);
+        setSuccessMsg("Added New Animal");
+        setSnackOpen(true);
       })
       .catch((err) => {
         console.log(err);
@@ -203,7 +191,7 @@ const EmployeeDashboard = () => {
     onSubmit: (values) => {
       // console.log(values);
       axios
-        .post("https://zoo-backend-test.herokuapp.com/login/employee_report", values)
+        .post("/reports/employee_report", values)
         .then((res) => {
           setAnimals(res.data);
         })
@@ -212,12 +200,39 @@ const EmployeeDashboard = () => {
         });
     },
   });
+
+  const calculateStats = () => {
+    let total = 0;
+    let sick = 0;
+    let healthy = 0;
+    let deceased = 0;
+    animals.forEach((animal) => {
+      if (animal.health_status == "Healthy") {
+        healthy += 1;
+      }
+      if (animal.health_status == "Sick") {
+        sick += 1;
+      }
+      if (animal.health_status == "Deceased") {
+        deceased += 1;
+      }
+      total += 1;
+    });
+    setAnimalsCount(total);
+    setSickCount(sick);
+    setHealthyCount(healthy);
+    setDeceasedCount(deceased);
+  };
+
+  useEffect(() => {
+    //Calculate stats
+    calculateStats();
+  }, [animals]);
   const classy = theStyles();
 
   return (
     <>
       <form className="form">
-        <Typography>Add Animal to Zoo</Typography>
         <Grid container spacing={2} style={{ padding: "10px" }}>
           <Grid item>
             <FormControl>
@@ -317,15 +332,34 @@ const EmployeeDashboard = () => {
             </Button>
           </Grid>
         </Grid>
+        <div>
+          <Snackbar
+            open={snackOpen}
+            autoHideDuration={2000}
+            onClose={() => {
+              setSnackOpen(false);
+            }}>
+            <div>
+              {successMsg !== "" ? (
+                <Alert severity="success">{successMsg}</Alert>
+              ) : null}
+            </div>
+          </Snackbar>
+        </div>
       </form>
 
+      <CreateSpecies getSpecies={getAllSpecies}></CreateSpecies>
       <form>
-        <div className={classy.root} noValidate autoComplete="off">
+        <div
+          className={classy.root}
+          noValidate
+          autoComplete="off"
+          style={{ margin: "10px" }}>
           <div>
             <Typography
               style={{
                 align: "middle",
-                fontSize: "32px",
+                fontSize: "16px",
               }}>
               Report Request
             </Typography>
@@ -334,29 +368,8 @@ const EmployeeDashboard = () => {
               style={{
                 fontSize: "22px",
                 fontWeight: "bold",
-              }}>
-             
-            </Typography>
+              }}></Typography>
           </div>
-          <div>
-            <FormControl
-              spacing={2}
-              style={{ marginBottom: "20px", width: "40%" }}
-              className={clsx(classy.margin, classy.textField)}
-              variant="outlined">
-              
-            </FormControl>
-
-            
-          </div>
-
-          <Typography
-            align="left"
-            style={{
-              fontSize: "18px",
-            }}>
-            Select atleast one item:{" "}
-          </Typography>
           <div>
             <FormControl
               style={{
@@ -364,13 +377,13 @@ const EmployeeDashboard = () => {
                 width: "40%",
                 marginRight: "10px",
               }}
-              className={clsx(classy.margin, classy.textField)}
-              variant="outlined">
-              <InputLabel id="species">Species</InputLabel>
+              className={clsx(classy.margin, classy.textField)}>
+              <InputLabel htmlFor="species">Species</InputLabel>
               <Select
                 labelId="species"
                 onChange={reportForm.handleChange}
                 name="species"
+                value={reportForm.values.species}
                 className={classes.select}>
                 {species.map((s, index) => (
                   <MenuItem key={index} value={s.species_id}>
@@ -381,12 +394,12 @@ const EmployeeDashboard = () => {
             </FormControl>
             <FormControl
               style={{ marginBottom: "20px", width: "40%" }}
-              className={clsx(classy.margin, classy.textField)}
-              variant="outlined">
-              <InputLabel id="health_status">Health Status</InputLabel>
+              className={clsx(classy.margin, classy.textField)}>
+              <InputLabel htmlFor="health_status">Health Status</InputLabel>
               <Select
                 labelId="health_status"
                 onChange={reportForm.handleChange}
+                value={reportForm.values.health_status}
                 name="health_status"
                 className={classes.select}>
                 <MenuItem value="Healthy">Healthy</MenuItem>
@@ -397,49 +410,56 @@ const EmployeeDashboard = () => {
           </div>
           <FormControl style={{ marginBottom: "20px", marginRight: "40px" }}>
             <InputLabel id="date_from" shrink>
-              Date From:
+              Date Arrived From:
             </InputLabel>
             <Input
               labelId="activity-from"
               name="date_from"
               type="date"
+              value={reportForm.values.date_from}
               onChange={reportForm.handleChange}
             />
           </FormControl>
           <FormControl>
             <InputLabel id="date_to" shrink>
-              Date To:
+              Date Arrived To:
             </InputLabel>
             <Input
               labelId="activity-to"
               name="date_to"
               type="date"
+              value={reportForm.values.date_to}
               onChange={reportForm.handleChange}
             />
           </FormControl>
-          <Button variant="contained" onClick={reportForm.handleSubmit}>
+          <Button
+            variant="contained"
+            onClick={reportForm.handleSubmit}
+            style={{ marginRight: "10px" }}>
             Get Report
+          </Button>
+          <Button variant="outlined" onClick={reportForm.handleReset}>
+            Clear
           </Button>
         </div>
       </form>
 
       {/* Table to display the animals */}
       <>
-        {
-          animals.length > 0 ? (
-            <>
-              <Typography>{`Report Result`}</Typography>
+        {animals.length > 0 ? (
+          <Grid container>
+            <Grid id="left" item xs={6}>
               <TableContainer
                 component={Paper}
-                style={{ width: 800, paddingTop: "10px" }}>
+                style={{ width: 800, paddingTop: "10px", marginLeft: "10px" }}>
                 <Table aria-label="simple table">
                   <TableHead>
                     <TableRow>
                       <TableCell>Name </TableCell>
-                      <TableCell align="right">Species</TableCell>
-                      <TableCell align="right">Date of Birth</TableCell>
-                      <TableCell align="right">Date Arrived</TableCell>
-                      <TableCell align="right">Health Status</TableCell>
+                      <TableCell align="center">Species</TableCell>
+                      <TableCell align="center">Date of Birth</TableCell>
+                      <TableCell align="center">Date Arrived</TableCell>
+                      <TableCell align="center">Health Status</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -465,10 +485,25 @@ const EmployeeDashboard = () => {
                   </TableBody>
                 </Table>
               </TableContainer>
-            </>
-          ) : null
-          //   <Typography style={{ padding: "10px" }}>No Animals</Typography>
-        }
+            </Grid>
+            <Grid id="right" item container xs={6}>
+              <Grid item>
+                <Card>
+                  <CardContent>
+                    <Typography variant="h5" component="h2">
+                      Animals Summary
+                    </Typography>
+                    <Typography color="textSecondary">{`Total Animals: ${animalsCount}`}</Typography>
+                    <Typography color="textSecondary">{`Healthy: ${healthyCount}`}</Typography>
+                    <Typography color="textSecondary">{`Sick: ${sickCount}`}</Typography>
+                    <Typography color="textSecondary">{`Deceased: ${deceasedCount}`}</Typography>
+                    <Typography variant="body2" component="p"></Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            </Grid>
+          </Grid>
+        ) : null}
       </>
     </>
   );
