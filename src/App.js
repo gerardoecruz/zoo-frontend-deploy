@@ -16,6 +16,7 @@ import GiftShopDetailed from "./components/GiftShopDetailed";
 import AdminDashboard from "./components/AdminDashboard";
 import UserDashboard from "./components/UserDashboard";
 import Messages from "./components/Messages";
+import EmployeeProfile from "./components/EmployeeProfile";
 // NEED TO "npm install" @material-ui dependencies
 // npm install @material-ui/core
 // npm install @material-ui/pickers
@@ -62,6 +63,7 @@ function App() {
             path="/employee_dashboard"
             component={EmployeeDashboard}
           />
+          <Route exact path="/employee_profile" component={EmployeeProfile} />
           <Route exact path="/admin_dashboard" component={AdminDashboard} />
           <Route exact path="/user_dashboard" component={UserDashboard} />
           <Route exact path="/history" component={PurchaseHistory} />
